@@ -6,11 +6,33 @@ set(name papki)
 
 project(${name})
 
+if(NOT TARGET utki::utki)
 find_package(utki CONFIG REQUIRED)
+endif()
+
 find_package(ZLIB REQUIRED)
 
-file(GLOB_RECURSE srcs "../src/${name}/*.cpp")
-file(GLOB_RECURSE deps_srcs "../src_deps/minizip/*.c")
+set(srcdir "${CMAKE_CURRENT_SOURCE_DIR}/../src/${name}")
+file(GLOB_RECURSE src RELATIVE "${srcdir}" CONFIGURE_DEPENDS "${srcdir}/*.cpp" "${srcdir}/*.hpp")
+
+set(srcs)
+foreach(file ${src})
+    get_filename_component(path "${file}" DIRECTORY)
+    string(REPLACE "/" "\\" path "Source Files/${path}")
+    source_group("${path}" FILES "${srcdir}/${file}")
+    list(APPEND srcs "${srcdir}/${file}")
+endforeach()
+
+set(deps_srcdir "${CMAKE_CURRENT_SOURCE_DIR}/../src_deps")
+file(GLOB_RECURSE deps_src RELATIVE "${deps_srcdir}" CONFIGURE_DEPENDS "${deps_srcdir}/*.c" "${deps_srcdir}/*.h")
+
+set(deps_srcs)
+foreach(file ${deps_src})
+    get_filename_component(path "${file}" DIRECTORY)
+    string(REPLACE "/" "\\" path "Source Files/${path}")
+    source_group("${path}" FILES "${deps_srcdir}/${file}")
+    list(APPEND deps_srcs "${deps_srcdir}/${file}")
+endforeach()
 
 add_library(
     ${name}
@@ -19,16 +41,15 @@ add_library(
     ${deps_srcs}
 )
 
-target_compile_features(${name} PUBLIC cxx_std_17)
+target_compile_features(${name} PUBLIC cxx_std_20)
 set_target_properties(${name} PROPERTIES CXX_STANDARD_REQUIRED ON)
 set_target_properties(${name} PROPERTIES CXX_EXTENSIONS OFF)
 
 target_include_directories(
     ${name}
-    PRIVATE
-        "../src_deps"
-    INTERFACE
-        $<BUILD_INTERFACE:>
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src_deps>
         $<INSTALL_INTERFACE:include>
 )
 
@@ -36,9 +57,10 @@ target_link_libraries(
     ${name}
     PUBLIC
         utki::utki
-    PRIVATE
         ZLIB::ZLIB
 )
+
+if(NOT PAPKI_DISABLE_INSTALL)
 
 # install library header files preserving directory hierarchy
 install(
@@ -68,3 +90,5 @@ install(
     NAMESPACE
         ${name}::
 )
+
+endif()
