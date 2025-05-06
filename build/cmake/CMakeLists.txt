@@ -12,7 +12,7 @@ endif()
 
 find_package(ZLIB REQUIRED)
 
-set(srcdir "${CMAKE_CURRENT_SOURCE_DIR}/../src/${name}")
+set(srcdir "${CMAKE_CURRENT_SOURCE_DIR}/../../src/${name}")
 file(GLOB_RECURSE src RELATIVE "${srcdir}" CONFIGURE_DEPENDS "${srcdir}/*.cpp" "${srcdir}/*.hpp")
 
 set(srcs)
@@ -23,7 +23,7 @@ foreach(file ${src})
     list(APPEND srcs "${srcdir}/${file}")
 endforeach()
 
-set(deps_srcdir "${CMAKE_CURRENT_SOURCE_DIR}/../src_deps")
+set(deps_srcdir "${CMAKE_CURRENT_SOURCE_DIR}/../../src_deps")
 file(GLOB_RECURSE deps_src RELATIVE "${deps_srcdir}" CONFIGURE_DEPENDS "${deps_srcdir}/*.c" "${deps_srcdir}/*.h")
 
 set(deps_srcs)
@@ -48,8 +48,8 @@ set_target_properties(${name} PROPERTIES CXX_EXTENSIONS OFF)
 target_include_directories(
     ${name}
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src_deps>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../src>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../src_deps>
         $<INSTALL_INTERFACE:include>
 )
 
@@ -65,7 +65,7 @@ if(NOT PAPKI_DISABLE_INSTALL)
 # install library header files preserving directory hierarchy
 install(
     DIRECTORY
-        "${CMAKE_CURRENT_SOURCE_DIR}/../src/${name}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/${name}"
     DESTINATION
         "${CMAKE_INSTALL_INCLUDEDIR}"
     FILES_MATCHING PATTERN
